@@ -6,17 +6,17 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-# If modifying these scopes, delete the file token.json.
+
 SCOPES = [
     'https://www.googleapis.com/auth/drive.metadata.readonly',
     'https://www.googleapis.com/auth/spreadsheets',
-          ]
+    ]
 
 # The downloaded credentials should go here
-CREDENTIAL = "../google-sagi.viktor1-credential/credentials_google.json"
+CREDENTIAL = os.path.dirname(os.path.realpath(__file__)) + '/credentials/credentials_google.json'
 
 # That the path for the generated token
-TOKEN = "../google-token/token.json"
+TOKEN = os.path.dirname(os.path.realpath(__file__)) + "/google-token/token.json"
 
 
 def start():
