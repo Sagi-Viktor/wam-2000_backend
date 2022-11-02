@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from wam.authentication import authentication
+from authentication import authentication
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
