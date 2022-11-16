@@ -62,3 +62,20 @@ def update_spreadsheet(request):
         return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
     except HttpError:
         return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+@api_view(['GET'])
+def get_headers_from_table(request):
+    """Read spreadsheet header if the id provided in a query parameter
+    query param: ?id"""
+
+    try:
+        spreadsheet_id = request.GET.get('id', False)
+        if not spreadsheet_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(get_row_from_table(spreadsheet_id=spreadsheet_id,
+                                           range_=helper.calc_range(),
+                                           value_render_option=helper.VRO_FORMATTED_VALUE,
+                                           date_time_render_option=helper.DATE_FORMATTED_STRING))
+    except HttpError:
+        return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
