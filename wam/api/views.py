@@ -39,6 +39,14 @@ def create_spreadsheet(request):
 
 @api_view(['POST'])
 def update_spreadsheet(request):
+    """Update Spreadsheet with provided values (spreadsheet ID, columns)
+    Request Json format:
+    {"spreadsheet_id": ID,
+    "data": {
+        "values": [[
+                "column-1",
+                "column-N",
+    ]]}}"""
 
     try:
         body = json.loads(request.body)
