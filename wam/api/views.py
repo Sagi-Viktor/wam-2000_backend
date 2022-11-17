@@ -6,6 +6,7 @@ from services.creation_service import create
 from services.update_service import update
 from services.read_service import get_row_from_table
 from services import helper_service as helper
+from services.list_spreadsheet_service import list_spreadsheets
 from googleapiclient.errors import HttpError
 from rest_framework import status
 
@@ -77,5 +78,15 @@ def get_headers_from_table(request):
                                            range_=helper.calc_range(),
                                            value_render_option=helper.VRO_FORMATTED_VALUE,
                                            date_time_render_option=helper.DATE_FORMATTED_STRING))
+    except HttpError:
+        return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+@api_view(['GET'])
+def get_spreadsheets_id(request):
+    """Returns a list of spreadsheets IDs and their names
+    in descending order based on creation time (The Newest First)"""
+    try:
+        return Response(list_spreadsheets(), status=status.HTTP_200_OK)
     except HttpError:
         return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
