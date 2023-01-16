@@ -5,7 +5,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 
-def create(title, body, range_name, value_input_option):
+def create(title, table_header, range_name, value_input_option):
     """
     Creates the empty Sheet with given name to the root directory.
     """
@@ -17,14 +17,19 @@ def create(title, body, range_name, value_input_option):
                 'title': title
             },
         }
+        # creates new spreadsheet
         spreadsheet = service.spreadsheets().create(body=spreadsheet, fields='spreadsheetId').execute()
-        print(f"Spreadsheet ID: {(spreadsheet.get('spreadsheetId'))}")
 
-        result = service.spreadsheets().values().update(
+        # write headers into the new spreadsheet
+        service.spreadsheets().values().update(
             spreadsheetId=spreadsheet.get('spreadsheetId'), range=range_name,
-            valueInputOption=value_input_option, body=body).execute()
-        print(f"{result.get('updatedCells')} cells updated.")
-        return spreadsheet.get('spreadsheetId')
+            valueInputOption=value_input_option, body=table_header).execute()
+
+        return {
+            'spreadsheet-name': title,
+            'spreadsheet-id': spreadsheet.get('spreadsheetId'),
+            'table-header': table_header,
+        }
     except HttpError as error:
         print(f"An error occurred: {error}")
         return error

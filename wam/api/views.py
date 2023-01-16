@@ -25,13 +25,12 @@ def create_spreadsheet(request):
                 "column-N",
     ]]}}"""
 
-    print(request.body)
     try:
         body = json.loads(request.body)
         title = body["title"] if body else "dummy-title"
         headers = body["headers"] if body["headers"] else None
         return Response(create(title=title,
-                               body=headers,
+                               table_header=headers,
                                range_name=helper.calc_range(),
                                value_input_option=helper.USER_ENTERED), status=status.HTTP_201_CREATED)
     except json.decoder.JSONDecodeError:
