@@ -13,6 +13,12 @@ from services.list_spreadsheet_service import list_spreadsheets
 from googleapiclient.errors import HttpError
 from rest_framework import status
 
+# Imports .env file to read current server host location
+import environ
+
+env = environ.Env()
+server_location = env("DJANGO_SERVER_HOST_LOCATION")
+
 
 @api_view(['POST'])
 def create_spreadsheet(request):
@@ -28,11 +34,17 @@ def create_spreadsheet(request):
     try:
         body = json.loads(request.body)
         title = body["title"] if body else "dummy-title"
-        headers = body["headers"] if body["headers"] else None
-        return Response(create(title=title,
-                               table_header=headers,
-                               range_name=helper.calc_range(),
-                               value_input_option=helper.USER_ENTERED), status=status.HTTP_201_CREATED)
+        headers = body["headers"] if "headers" in body else None
+        details = create(title=title,
+                         table_header=headers,
+                         range_name=helper.calc_range(),
+                         value_input_option=helper.USER_ENTERED)
+        response = {"spreadsheet-title": details["spreadsheet-name"],
+                    "spreadsheet-id": details["spreadsheet-id"],
+                    "location-for-headers": f'{server_location}/get?id={details["spreadsheet-id"]}',
+                    "location-for-download": f'{server_location}/download-raw?id={details["spreadsheet-id"]}',
+                    "table-headers": details["table-header"]["values"][0] if details["table-header"] is not None else None}
+        return Response(response, status=status.HTTP_201_CREATED)
     except json.decoder.JSONDecodeError:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     except KeyError:
@@ -104,7 +116,7 @@ def download_spreadsheet(request):
         if not spreadsheet_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
         spreadsheet_file = export_file(spreadsheet_id)
-        #create a file like buffer to receive PDF data.
+        # create a file like buffer to receive PDF data.
         buffer = BytesIO()
         buffer.write(spreadsheet_file)
         buffer.seek(0)
