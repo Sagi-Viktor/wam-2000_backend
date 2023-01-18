@@ -44,7 +44,8 @@ def create_spreadsheet(request):
             "spreadsheet-id": details["spreadsheet-id"],
             "location-for-headers": f'{server_location}/get?id={details["spreadsheet-id"]}',
             "location-for-download": f'{server_location}/download-raw?id={details["spreadsheet-id"]}',
-            "table-header": details["table-header"]["values"][0] if details["table-header"] is not None else None}
+            "table-header": details["table-header"]["values"][0] if details["table-header"] is not None else None
+        }
         return Response(response, status=status.HTTP_201_CREATED)
     except json.decoder.JSONDecodeError:
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -101,10 +102,18 @@ def get_headers_from_table(request):
         spreadsheet_id = request.GET.get('id', False)
         if not spreadsheet_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        return Response(get_row_from_table(spreadsheet_id=spreadsheet_id,
-                                           range_=helper.calc_range(),
-                                           value_render_option=helper.VRO_FORMATTED_VALUE,
-                                           date_time_render_option=helper.DATE_FORMATTED_STRING))
+        details = get_row_from_table(spreadsheet_id=spreadsheet_id,
+                                     range_=helper.calc_range(),
+                                     value_render_option=helper.VRO_FORMATTED_VALUE,
+                                     date_time_render_option=helper.DATE_FORMATTED_STRING)
+        response = {
+            "spreadsheet-id": spreadsheet_id,
+            "location-for-headers": f'{server_location}/get?id={spreadsheet_id}',
+            "location-for-download": f'{server_location}/download-raw?id={spreadsheet_id}',
+            "major-direction": details["majorDimension"],
+            "table-header": details["values"][0] if 'values' in details else None
+        }
+        return Response(response)
     except HttpError:
         return Response(status=status.HTTP_503_SERVICE_UNAVAILABLE)
 

@@ -14,5 +14,5 @@ def get_row_from_table(spreadsheet_id, range_, value_render_option, date_time_re
                                                   valueRenderOption=value_render_option,
                                                   dateTimeRenderOption=date_time_render_option)
     response = request.execute()
-    print(f"{len(response['values'][0])} cells read by server.")
+    print(f"{len(response['values'][0])} cells read by server." if 'values' in response else "No values present")
     return response
