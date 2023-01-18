@@ -9,11 +9,18 @@ def update(spreadsheet_id, data, range_, value_input_option, insert_data_option)
 
     creds = authentication.start()
     service = discovery.build('sheets', 'v4', credentials=creds)
-    print(f"Updating Spreadsheet, ID: {spreadsheet_id}")
+    print(f"Start Updating Spreadsheet, ID: {spreadsheet_id}")
     request = service.spreadsheets().values().append(spreadsheetId=spreadsheet_id,
                                                      range=range_, valueInputOption=value_input_option,
                                                      insertDataOption=insert_data_option,
                                                      body=data)
     response = request.execute()
     print(f"{response['updates']['updatedColumns']} cells updated.")
-    return response
+    return {
+        'spreadsheet-id': response["spreadsheetId"],
+        'table-range': response["tableRange"],
+        'update-range': response["updates"]["updatedRange"],
+        'updated-rows': response["updates"]["updatedRows"],
+        'updated-cells': response["updates"]["updatedCells"],
+        'data-insertion-direction': insert_data_option,
+    }

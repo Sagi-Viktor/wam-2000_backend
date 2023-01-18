@@ -39,11 +39,12 @@ def create_spreadsheet(request):
                          table_header=headers,
                          range_name=helper.calc_range(),
                          value_input_option=helper.USER_ENTERED)
-        response = {"spreadsheet-title": details["spreadsheet-name"],
-                    "spreadsheet-id": details["spreadsheet-id"],
-                    "location-for-headers": f'{server_location}/get?id={details["spreadsheet-id"]}',
-                    "location-for-download": f'{server_location}/download-raw?id={details["spreadsheet-id"]}',
-                    "table-headers": details["table-header"]["values"][0] if details["table-header"] is not None else None}
+        response = {
+            "spreadsheet-title": details["spreadsheet-name"],
+            "spreadsheet-id": details["spreadsheet-id"],
+            "location-for-headers": f'{server_location}/get?id={details["spreadsheet-id"]}',
+            "location-for-download": f'{server_location}/download-raw?id={details["spreadsheet-id"]}',
+            "table-header": details["table-header"]["values"][0] if details["table-header"] is not None else None}
         return Response(response, status=status.HTTP_201_CREATED)
     except json.decoder.JSONDecodeError:
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -68,10 +69,21 @@ def update_spreadsheet(request):
         body = json.loads(request.body)
         spreadsheet_id = body["spreadsheet_id"]
         data = body["data"]
-        return Response(update(spreadsheet_id=spreadsheet_id,
-                               data=data, range_=helper.calc_range(),
-                               value_input_option=helper.USER_ENTERED,
-                               insert_data_option=helper.INSERT_ROWS), status=status.HTTP_201_CREATED)
+        details = update(spreadsheet_id=spreadsheet_id,
+                         data=data, range_=helper.calc_range(),
+                         value_input_option=helper.USER_ENTERED,
+                         insert_data_option=helper.INSERT_ROWS)
+        response = {
+            "spreadsheet-id": details["spreadsheet-id"],
+            "location-for-headers": f'{server_location}/get?id={details["spreadsheet-id"]}',
+            "location-for-download": f'{server_location}/download-raw?id={details["spreadsheet-id"]}',
+            "data-insertion-direction": details["data-insertion-direction"],
+            "table-range": details['table-range'],
+            "update-range": details["update-range"],
+            "updated-rows": details["updated-rows"],
+            "updated-cells": details["updated-cells"],
+        }
+        return Response(response, status=status.HTTP_201_CREATED)
     except json.decoder.JSONDecodeError:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     except KeyError:
